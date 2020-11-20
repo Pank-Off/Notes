@@ -1,7 +1,8 @@
-package ru.kotlincourses.notes
+package ru.kotlincourses.notes.ui
 
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
+import ru.kotlincourses.notes.R
 
 class MainActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {

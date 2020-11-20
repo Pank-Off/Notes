@@ -2,4 +2,5 @@
     <string name="app_name">Notes</string>
     <string name="hello">Hello</string>
     <string name="click">Click</string>
+    <string name="title_bar">Notes</string>
 </resources>
