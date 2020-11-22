@@ -2,6 +2,7 @@ package ru.kotlincourses.notes.ui
 
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
+import androidx.fragment.app.Fragment
 import ru.kotlincourses.notes.R
 
 class MainActivity : AppCompatActivity() {
@@ -13,5 +14,11 @@ class MainActivity : AppCompatActivity() {
             supportFragmentManager.beginTransaction().add(R.id.main_fragment, MainFragment())
                 .commit()
         }
+    }
+
+    fun navigateTo(fragment: Fragment) {
+        supportFragmentManager.beginTransaction().replace(R.id.main_fragment, fragment)
+            .addToBackStack(null)
+            .commit()
     }
 }

@@ -1,43 +1,35 @@
 package ru.kotlincourses.notes.data
 
-object Repository {
+import androidx.lifecycle.LiveData
+import androidx.lifecycle.MutableLiveData
+import kotlin.random.Random
 
-    val notes = listOf(
-        Note(
-            "Моя первая заметка",
-            "Kotlin очень краткий, но при этом выразительный язык",
-            0xfff06292.toInt()
-        ),
-        Note(
-            "Моя первая заметка",
-            "Kotlin очень краткий, но при этом выразительный язык",
-            0xff9575cd.toInt()
-        ),
-        Note(
-            "Моя первая заметка",
-            "Kotlin очень краткий, но при этом выразительный язык",
-            0xff64b5f6.toInt()
-        ),
-        Note(
-            "Моя первая заметка",
-            "Kotlin очень краткий, но при этом выразительный язык",
-            0xff4db6ac.toInt()
-        ),
-        Note(
-            "Моя первая заметка",
-            "Kotlin очень краткий, но при этом выразительный язык",
-            0xffb2ff59.toInt()
-        ),
-        Note(
-            "Моя первая заметка",
-            "Kotlin очень краткий, но при этом выразительный язык",
-            0xffffeb3b.toInt()
-        ),
-        Note(
-            "Моя первая заметка",
-            "Kotlin очень краткий, но при этом выразительный язык",
-            0xffff6e40.toInt()
+private val idRandom = Random(0)
+val noteId: Long
+    get() = idRandom.nextLong()
+
+object Repository : NotesRepository {
+
+    val notes = mutableListOf<Note>()
+    private val allNotes = MutableLiveData(getListForNotify())
+
+    override fun observeNotes(): LiveData<List<Note>> = allNotes
+
+    override fun addOrReplaceNote(newNote: Note) {
+        notes.find {
+            it.id == newNote.id
+        }?.let {
+            if (it == newNote) return
+
+            notes.remove(it)
+        }
+        notes.add(newNote)
+        allNotes.postValue(
+            getListForNotify()
         )
-    )
+    }
 
+    private fun getListForNotify(): List<Note> = notes.toMutableList().also {
+        it.reverse()
+    }
 }

@@ -9,6 +9,7 @@ import androidx.recyclerview.widget.RecyclerView
 import kotlinx.android.synthetic.main.item_note.view.*
 import ru.kotlincourses.notes.R
 import ru.kotlincourses.notes.data.Note
+import ru.kotlincourses.notes.data.mapToColor
 
 val DIFF_UTIL: DiffUtil.ItemCallback<Note> = object : DiffUtil.ItemCallback<Note>() {
     override fun areItemsTheSame(oldItem: Note, newItem: Note): Boolean {
@@ -22,6 +23,11 @@ val DIFF_UTIL: DiffUtil.ItemCallback<Note> = object : DiffUtil.ItemCallback<Note
 
 class NotesAdapter : ListAdapter<Note, NotesAdapter.NoteViewHolder>(DIFF_UTIL) {
 
+    private lateinit var listener: Listener
+    fun attachListener(clickListener: Listener) {
+        listener = clickListener
+    }
+
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): NoteViewHolder {
         val view = LayoutInflater.from(parent.context).inflate(
             R.layout.item_note, parent, false
@@ -33,12 +39,19 @@ class NotesAdapter : ListAdapter<Note, NotesAdapter.NoteViewHolder>(DIFF_UTIL) {
         holder.bind(getItem(position))
     }
 
-    class NoteViewHolder(view: View) : RecyclerView.ViewHolder(view) {
+    inner class NoteViewHolder(view: View) : RecyclerView.ViewHolder(view) {
+
+        private val clickListener: View.OnClickListener = View.OnClickListener {
+            listener.handle(currentNote)
+        }
+        private lateinit var currentNote: Note
         fun bind(item: Note) {
+            currentNote = item
             with(itemView) {
                 title.text = item.title
                 body.text = item.note
-                setBackgroundColor(item.color)
+                setBackgroundColor(item.color.mapToColor(context))
+                setOnClickListener(clickListener)
             }
         }
     }
