@@ -4,6 +4,7 @@ import android.app.Activity
 import android.os.Bundle
 import android.view.View
 import android.view.inputmethod.InputMethodManager
+import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.widget.addTextChangedListener
 import androidx.fragment.app.Fragment
@@ -28,23 +29,21 @@ class NoteFragment : Fragment(R.layout.fragment_note) {
         )
     }
 
-    companion object {
-        const val EXTRA_NOTE = "arg"
-        fun create(note: Note?): NoteFragment {
-            val noteFragment = NoteFragment()
-            val bundle = Bundle()
-            bundle.putParcelable(EXTRA_NOTE, note)
-            noteFragment.arguments = bundle
-            return noteFragment
-        }
-    }
-
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         initToolbar()
         viewModel.note?.let {
             titleEt.setText(it.title)
             bodyEt.setText(it.note)
+        }
+        viewModel.showError().observe(viewLifecycleOwner) {
+            it.getContentIfNotHandled()?.let {
+                Toast.makeText(context, "Error while saving note!", Toast.LENGTH_LONG).show()
+            }
+        }
+        saveBtn.setOnClickListener {
+            viewModel.saveNote()
+            activity?.supportFragmentManager?.popBackStack()
         }
         titleEt.addTextChangedListener {
             if (it.toString() != "") {
@@ -77,5 +76,16 @@ class NoteFragment : Fragment(R.layout.fragment_note) {
             requireActivity().getSystemService(Activity.INPUT_METHOD_SERVICE) as InputMethodManager
         val view = requireActivity().currentFocus
         imm.hideSoftInputFromWindow(view?.windowToken, 0)
+    }
+
+    companion object {
+        const val EXTRA_NOTE = "arg"
+        fun create(note: Note?): NoteFragment {
+            val noteFragment = NoteFragment()
+            val bundle = Bundle()
+            bundle.putParcelable(EXTRA_NOTE, note)
+            noteFragment.arguments = bundle
+            return noteFragment
+        }
     }
 }

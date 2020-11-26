@@ -5,4 +5,5 @@
     <string name="title_bar">Notes</string>
     <string name="hint_editText">Заголовок</string>
     <string name="text_of_note">Текст заметки</string>
+    <string name="save_note">Save Note</string>
 </resources>
