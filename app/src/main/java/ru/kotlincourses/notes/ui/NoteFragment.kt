@@ -14,7 +14,7 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
 import kotlinx.android.synthetic.main.fragment_note.*
 import ru.kotlincourses.notes.R
-import ru.kotlincourses.notes.data.Note
+import ru.kotlincourses.notes.model.Note
 import ru.kotlincourses.notes.presentation.NoteViewModel
 
 class NoteFragment : Fragment(R.layout.fragment_note) {
@@ -43,6 +43,7 @@ class NoteFragment : Fragment(R.layout.fragment_note) {
         }
         saveBtn.setOnClickListener {
             viewModel.saveNote()
+            hideKeyboard()
             activity?.supportFragmentManager?.popBackStack()
         }
         titleEt.addTextChangedListener {

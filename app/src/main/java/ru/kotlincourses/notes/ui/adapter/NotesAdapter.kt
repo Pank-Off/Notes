@@ -8,8 +8,8 @@ import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
 import kotlinx.android.synthetic.main.item_note.view.*
 import ru.kotlincourses.notes.R
-import ru.kotlincourses.notes.data.Note
-import ru.kotlincourses.notes.data.mapToColor
+import ru.kotlincourses.notes.model.Note
+import ru.kotlincourses.notes.model.mapToColor
 
 val DIFF_UTIL: DiffUtil.ItemCallback<Note> = object : DiffUtil.ItemCallback<Note>() {
     override fun areItemsTheSame(oldItem: Note, newItem: Note): Boolean {

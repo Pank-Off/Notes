@@ -36,7 +36,7 @@
                 android:id="@+id/titleEt"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:textColor="@android:color/black" />
+                android:textColor="@android:color/darker_gray" />
         </com.google.android.material.textfield.TextInputLayout>
 
         <EditText
