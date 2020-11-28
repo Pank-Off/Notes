@@ -1,35 +1,22 @@
 package ru.kotlincourses.notes.data
 
 import androidx.lifecycle.LiveData
-import androidx.lifecycle.MutableLiveData
+import ru.kotlincourses.notes.data.db.FireStoreDatabaseProvider
 import kotlin.random.Random
 
 private val idRandom = Random(0)
 val noteId: Long
     get() = idRandom.nextLong()
 
-object Repository : NotesRepository {
+class Repository(private val provider: FireStoreDatabaseProvider) : NotesRepository {
 
-    val notes = mutableListOf<Note>()
-    private val allNotes = MutableLiveData(getListForNotify())
-
-    override fun observeNotes(): LiveData<List<Note>> = allNotes
-
-    override fun addOrReplaceNote(newNote: Note) {
-        notes.find {
-            it.id == newNote.id
-        }?.let {
-            if (it == newNote) return
-
-            notes.remove(it)
-        }
-        notes.add(newNote)
-        allNotes.postValue(
-            getListForNotify()
-        )
+    override fun observeNotes(): LiveData<List<Note>> {
+        return provider.observeNotes()
     }
 
-    private fun getListForNotify(): List<Note> = notes.toMutableList().also {
-        it.reverse()
+    override fun addOrReplaceNote(newNote: Note): LiveData<Result<Note>> {
+        return provider.addOrReplaceNote(newNote)
     }
 }
+
+val notesRepository by lazy { Repository(FireStoreDatabaseProvider()) }
