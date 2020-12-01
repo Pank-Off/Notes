@@ -1,10 +1,11 @@
 package ru.kotlincourses.notes.presentation
 
 import androidx.lifecycle.*
+import ru.kotlincourses.notes.data.NotesRepository
 import ru.kotlincourses.notes.model.Note
-import ru.kotlincourses.notes.data.notesRepository
 
-class NoteViewModel(var note: Note?) : ViewModel(), LifecycleOwner {
+class NoteViewModel(private val notesRepository: NotesRepository, var note: Note?) : ViewModel(),
+    LifecycleOwner {
     private val showErrorLiveData = MutableLiveData<Event<Boolean>>()
 
     private val lifecycleOwner: LifecycleOwner = LifecycleOwner { lifecycleRegistry }

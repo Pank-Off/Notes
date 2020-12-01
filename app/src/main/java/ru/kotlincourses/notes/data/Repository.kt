@@ -1,7 +1,7 @@
 package ru.kotlincourses.notes.data
 
 import androidx.lifecycle.LiveData
-import ru.kotlincourses.notes.data.db.FireStoreDatabaseProvider
+import ru.kotlincourses.notes.data.db.DatabaseProvider
 import ru.kotlincourses.notes.model.Note
 import kotlin.random.Random
 
@@ -9,7 +9,7 @@ private val idRandom = Random(0)
 val noteId: Long
     get() = idRandom.nextLong()
 
-class Repository(private val provider: FireStoreDatabaseProvider) : NotesRepository {
+class Repository(private val provider: DatabaseProvider) : NotesRepository {
 
     override fun observeNotes(): LiveData<List<Note>> {
         return provider.observeNotes()
@@ -21,5 +21,3 @@ class Repository(private val provider: FireStoreDatabaseProvider) : NotesReposit
 
     override fun getCurrentUser() = provider.getCurrentUser()
 }
-
-val notesRepository by lazy { Repository(FireStoreDatabaseProvider()) }

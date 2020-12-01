@@ -12,24 +12,17 @@ import androidx.core.widget.addTextChangedListener
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.FragmentManager
 import androidx.fragment.app.FragmentTransaction
-import androidx.lifecycle.ViewModel
-import androidx.lifecycle.ViewModelProvider
 import kotlinx.android.synthetic.main.fragment_note.*
-import ru.kotlincourses.notes.R
+import org.koin.androidx.viewmodel.ext.android.viewModel
+import org.koin.core.parameter.parametersOf
 import ru.kotlincourses.notes.databinding.FragmentNoteBinding
 import ru.kotlincourses.notes.model.Note
 import ru.kotlincourses.notes.presentation.NoteViewModel
 
-class NoteFragment : Fragment(R.layout.fragment_note) {
+class NoteFragment : Fragment() {
     private val note: Note? by lazy(LazyThreadSafetyMode.NONE) { arguments?.getParcelable(EXTRA_NOTE) }
-    private val viewModel by lazy(LazyThreadSafetyMode.NONE) {
-        ViewModelProvider(this, object : ViewModelProvider.Factory {
-            override fun <T : ViewModel?> create(modelClass: Class<T>): T {
-                return NoteViewModel(note) as T
-            }
-        }).get(
-            NoteViewModel::class.java
-        )
+    private val viewModel by viewModel<NoteViewModel> {
+        parametersOf(note)
     }
     private var _binding: FragmentNoteBinding? = null
     private val binding: FragmentNoteBinding get() = _binding!!

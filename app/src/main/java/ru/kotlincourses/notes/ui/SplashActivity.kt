@@ -3,23 +3,16 @@ package ru.kotlincourses.notes.ui
 import android.content.Intent
 import android.os.Bundle
 import android.view.LayoutInflater
-import androidx.lifecycle.ViewModel
-import androidx.lifecycle.ViewModelProvider
-import ru.kotlincourses.notes.data.notesRepository
+
+import org.koin.androidx.viewmodel.ext.android.viewModel
+
 import ru.kotlincourses.notes.databinding.ActivitySplashBinding
 import ru.kotlincourses.notes.presentation.SplashViewModel
 import ru.kotlincourses.notes.presentation.SplashViewState
 
 class SplashActivity : BaseActivity() {
-    private val viewModel by lazy(LazyThreadSafetyMode.NONE) {
-        ViewModelProvider(this, object : ViewModelProvider.Factory {
-            override fun <T : ViewModel?> create(modelClass: Class<T>): T {
-                return SplashViewModel(notesRepository) as T
-            }
-        }).get(
-            SplashViewModel::class.java
-        )
-    }
+
+    private val viewModel by viewModel<SplashViewModel>()
 
     private lateinit var binding: ActivitySplashBinding
     override fun onCreate(savedInstanceState: Bundle?) {
