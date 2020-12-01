@@ -2,10 +2,11 @@ package ru.kotlincourses.notes.ui
 
 import android.content.Intent
 import android.os.Bundle
+import android.view.LayoutInflater
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
-import ru.kotlincourses.notes.R
 import ru.kotlincourses.notes.data.notesRepository
+import ru.kotlincourses.notes.databinding.ActivitySplashBinding
 import ru.kotlincourses.notes.presentation.SplashViewModel
 import ru.kotlincourses.notes.presentation.SplashViewState
 
@@ -20,9 +21,11 @@ class SplashActivity : BaseActivity() {
         )
     }
 
+    private lateinit var binding: ActivitySplashBinding
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        setContentView(R.layout.activity_splash)
+        binding = ActivitySplashBinding.inflate(LayoutInflater.from(this))
+        setContentView(binding.root)
 
         viewModel.observeViewState().observe(this) {
             when (it) {

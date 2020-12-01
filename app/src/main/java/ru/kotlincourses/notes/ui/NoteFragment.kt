@@ -2,7 +2,9 @@ package ru.kotlincourses.notes.ui
 
 import android.app.Activity
 import android.os.Bundle
+import android.view.LayoutInflater
 import android.view.View
+import android.view.ViewGroup
 import android.view.inputmethod.InputMethodManager
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
@@ -14,6 +16,7 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
 import kotlinx.android.synthetic.main.fragment_note.*
 import ru.kotlincourses.notes.R
+import ru.kotlincourses.notes.databinding.FragmentNoteBinding
 import ru.kotlincourses.notes.model.Note
 import ru.kotlincourses.notes.presentation.NoteViewModel
 
@@ -28,38 +31,51 @@ class NoteFragment : Fragment(R.layout.fragment_note) {
             NoteViewModel::class.java
         )
     }
+    private var _binding: FragmentNoteBinding? = null
+    private val binding: FragmentNoteBinding get() = _binding!!
+
+    override fun onCreateView(
+        inflater: LayoutInflater,
+        container: ViewGroup?,
+        savedInstanceState: Bundle?
+    ): View? {
+        _binding = FragmentNoteBinding.inflate(inflater, container, false)
+        return binding.root
+    }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         initToolbar()
-        viewModel.note?.let {
-            titleEt.setText(it.title)
-            bodyEt.setText(it.note)
-        }
-        viewModel.showError().observe(viewLifecycleOwner) {
-            it.getContentIfNotHandled()?.let {
-                Toast.makeText(context, "Error while saving note!", Toast.LENGTH_LONG).show()
+        with(binding) {
+            viewModel.note?.let {
+                titleEt.setText(it.title)
+                bodyEt.setText(it.note)
             }
-        }
-        saveBtn.setOnClickListener {
-            viewModel.saveNote()
-            hideKeyboard()
-            activity?.supportFragmentManager?.popBackStack()
-        }
-        titleEt.addTextChangedListener {
-            if (it.toString() != "") {
-                viewModel.updateTitle(it.toString())
+            viewModel.showError().observe(viewLifecycleOwner) {
+                it.getContentIfNotHandled()?.let {
+                    Toast.makeText(context, "Error while saving note!", Toast.LENGTH_LONG).show()
+                }
             }
-        }
-        bodyEt.addTextChangedListener {
-            if (it.toString() != "") {
-                viewModel.updateNote(it.toString())
+            saveBtn.setOnClickListener {
+                viewModel.saveNote()
+                hideKeyboard()
+                activity?.supportFragmentManager?.popBackStack()
+            }
+            titleEt.addTextChangedListener {
+                if (it.toString() != "") {
+                    viewModel.updateTitle(it.toString())
+                }
+            }
+            bodyEt.addTextChangedListener {
+                if (it.toString() != "") {
+                    viewModel.updateNote(it.toString())
+                }
             }
         }
     }
 
     private fun initToolbar() {
-        (requireActivity() as AppCompatActivity).setSupportActionBar(toolbar)
+        (requireActivity() as AppCompatActivity).setSupportActionBar(binding.toolbar)
         (requireActivity() as AppCompatActivity).supportActionBar?.apply {
             setDisplayHomeAsUpEnabled(true)
         }
@@ -77,6 +93,11 @@ class NoteFragment : Fragment(R.layout.fragment_note) {
             requireActivity().getSystemService(Activity.INPUT_METHOD_SERVICE) as InputMethodManager
         val view = requireActivity().currentFocus
         imm.hideSoftInputFromWindow(view?.windowToken, 0)
+    }
+
+    override fun onDestroyView() {
+        super.onDestroyView()
+        _binding = null
     }
 
     companion object {
