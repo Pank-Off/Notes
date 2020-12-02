@@ -6,8 +6,11 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.view.inputmethod.InputMethodManager
+import android.widget.Button
 import android.widget.Toast
+import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
+import androidx.appcompat.view.ContextThemeWrapper
 import androidx.core.widget.addTextChangedListener
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.FragmentManager
@@ -15,6 +18,7 @@ import androidx.fragment.app.FragmentTransaction
 import kotlinx.android.synthetic.main.fragment_note.*
 import org.koin.androidx.viewmodel.ext.android.viewModel
 import org.koin.core.parameter.parametersOf
+import ru.kotlincourses.notes.R
 import ru.kotlincourses.notes.databinding.FragmentNoteBinding
 import ru.kotlincourses.notes.model.Note
 import ru.kotlincourses.notes.presentation.NoteViewModel
@@ -39,6 +43,11 @@ class NoteFragment : Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         initToolbar()
+        if (note != null) {
+            viewModel.setVisibleDeleteBtn(NoteViewModel.DeleteBtnVisibility.VISIBLE)
+        } else {
+            viewModel.setVisibleDeleteBtn(NoteViewModel.DeleteBtnVisibility.INVISIBLE)
+        }
         with(binding) {
             viewModel.note?.let {
                 titleEt.setText(it.title)
@@ -49,10 +58,33 @@ class NoteFragment : Fragment() {
                     Toast.makeText(context, "Error while saving note!", Toast.LENGTH_LONG).show()
                 }
             }
+            viewModel.observeDeleteBtnVisible().observe(viewLifecycleOwner) {
+                when (it) {
+                    NoteViewModel.DeleteBtnVisibility.VISIBLE -> deleteBtn.visibility =
+                        Button.VISIBLE
+                    NoteViewModel.DeleteBtnVisibility.INVISIBLE -> deleteBtn.visibility =
+                        Button.INVISIBLE
+                    else -> deleteBtn.visibility = Button.INVISIBLE
+                }
+            }
             saveBtn.setOnClickListener {
                 viewModel.saveNote()
                 hideKeyboard()
                 activity?.supportFragmentManager?.popBackStack()
+            }
+
+            deleteBtn.setOnClickListener {
+                AlertDialog.Builder(ContextThemeWrapper(context, R.style.myDialog))
+                    .setTitle(R.string.logout_dialog_title)
+                    .setMessage(R.string.logout_dialog_message)
+                    .setPositiveButton(R.string.ok_bth_title) { _, _ ->
+                        viewModel.deleteNote()
+                        parentFragmentManager.popBackStack()
+                    }
+                    .setNegativeButton(R.string.logout_dialog_cancel) { _, _ -> }
+                    .create().show()
+
+
             }
             titleEt.addTextChangedListener {
                 if (it.toString() != "") {

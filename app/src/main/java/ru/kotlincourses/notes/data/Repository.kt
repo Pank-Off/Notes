@@ -11,13 +11,12 @@ val noteId: Long
 
 class Repository(private val provider: DatabaseProvider) : NotesRepository {
 
-    override fun observeNotes(): LiveData<List<Note>> {
-        return provider.observeNotes()
-    }
+    override fun observeNotes(): LiveData<List<Note>> = provider.observeNotes()
 
-    override fun addOrReplaceNote(newNote: Note): LiveData<Result<Note>> {
-        return provider.addOrReplaceNote(newNote)
-    }
+    override fun addOrReplaceNote(newNote: Note): LiveData<Result<Note>> =
+        provider.addOrReplaceNote(newNote)
+
+    override fun deleteNote(noteId: Long): LiveData<Result<Note?>> = provider.deleteNote(noteId)
 
     override fun getCurrentUser() = provider.getCurrentUser()
 }

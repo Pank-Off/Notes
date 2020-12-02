@@ -3,13 +3,12 @@ package ru.kotlincourses.notes.ui
 import android.content.Context
 import android.content.Intent
 import android.os.Bundle
-import android.view.ContextThemeWrapper
 import android.view.LayoutInflater
 import android.view.Menu
 import android.view.MenuItem
-import androidx.appcompat.app.AlertDialog
 import androidx.fragment.app.Fragment
 import com.firebase.ui.auth.AuthUI
+import org.jetbrains.anko.alert
 import ru.kotlincourses.notes.R
 import ru.kotlincourses.notes.databinding.ActivityMainBinding
 
@@ -43,12 +42,12 @@ class MainActivity : BaseActivity() {
         }
 
     private fun showLogoutDialog() {
-        AlertDialog.Builder(ContextThemeWrapper(this, R.style.myDialog))
-            .setTitle(R.string.logout_dialog_title)
-            .setMessage(R.string.logout_dialog_message)
-            .setPositiveButton(R.string.ok_bth_title) { _, _ -> onLogout() }
-            .setNegativeButton(R.string.logout_dialog_cancel) { _, _ -> }
-            .create().show()
+        alert {
+            titleResource = R.string.logout_dialog_title
+            messageResource = R.string.logout_dialog_message
+            positiveButton(R.string.ok_bth_title) { onLogout() }
+            negativeButton(R.string.logout_dialog_cancel) { dialog -> dialog.dismiss() }
+        }.show()
     }
 
     private fun onLogout() {
