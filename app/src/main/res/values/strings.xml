@@ -3,7 +3,16 @@
     <string name="hello">Hello</string>
     <string name="click">Click</string>
     <string name="title_bar">Notes</string>
-    <string name="hint_editText">Заголовок</string>
-    <string name="text_of_note">Текст заметки</string>
+    <string name="hint_editText">Title</string>
+    <string name="text_of_note">Text</string>
     <string name="save_note">Save Note</string>
+    <string name="login">Login</string>
+    <string name="password">Password</string>
+    <string name="signIn">SignIn</string>
+    <string name="logout">logout</string>
+
+    <string name="logout_dialog_title">Log out of your account?</string>
+    <string name="logout_dialog_message">All your notes will be saved. You will be able to access them after logging in.</string>
+    <string name="logout_dialog_cancel">Cancel</string>
+    <string name="ok_bth_title">OK</string>
 </resources>

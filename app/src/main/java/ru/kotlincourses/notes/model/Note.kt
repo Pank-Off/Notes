@@ -1,12 +1,11 @@
-package ru.kotlincourses.notes.data
+package ru.kotlincourses.notes.model
 
 import android.content.Context
 import android.os.Parcelable
 import androidx.core.content.ContextCompat
 import kotlinx.android.parcel.Parcelize
 import ru.kotlincourses.notes.R
-import kotlin.random.Random
-
+import ru.kotlincourses.notes.data.noteId
 
 @Parcelize
 data class Note(
