@@ -8,7 +8,6 @@ import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.launch
 import ru.kotlincourses.notes.data.NotesRepository
 import ru.kotlincourses.notes.data.errors.NoAuthException
-import java.util.concurrent.Executors
 
 class SplashViewModel(private val repository: NotesRepository) : ViewModel() {
     private val viewStateLiveData = MutableLiveData<SplashViewState>()

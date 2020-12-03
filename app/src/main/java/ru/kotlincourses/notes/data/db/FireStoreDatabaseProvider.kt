@@ -76,6 +76,20 @@ class FireStoreDatabaseProvider : DatabaseProvider {
     } ?: throw NoAuthException()
 
     override fun getCurrentUser() = currentUser?.run { User(displayName, email) }
+    override fun deleteNote(noteId: Long): LiveData<Result<Note?>> {
+        val result = MutableLiveData<Result<Note?>>()
+        handleNotesReference({
+            getUserNotesCollection().document(noteId.toString()).delete()
+                .addOnSuccessListener {
+                    Log.d(TAG, "Note is deleted")
+                    result.value = Result.success(null)
+                }.addOnFailureListener {
+                    Log.e(TAG, "Error delete note, message: ${it.message}")
+                    result.value = Result.failure(it)
+                }
+        })
+        return result
+    }
 
     private inline fun handleNotesReference(
         referenceHandler: (CollectionReference) -> Unit,
