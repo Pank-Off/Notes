@@ -4,7 +4,9 @@ import android.util.Log
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import com.google.firebase.auth.FirebaseAuth
-import com.google.firebase.firestore.*
+import com.google.firebase.firestore.CollectionReference
+import com.google.firebase.firestore.FirebaseFirestore
+import com.google.firebase.firestore.QueryDocumentSnapshot
 import ru.kotlincourses.notes.data.errors.NoAuthException
 import ru.kotlincourses.notes.model.Note
 import ru.kotlincourses.notes.model.User
@@ -13,12 +15,13 @@ const val TAG = "FireStoreDatabase"
 private const val NOTES_COLLECTION = "notes"
 private const val USERS_COLLECTION = "users"
 
-class FireStoreDatabaseProvider : DatabaseProvider {
-    private val db = FirebaseFirestore.getInstance()
-    private val result = MutableLiveData<List<Note>>()
+class FireStoreDatabaseProvider(
+    private val db: FirebaseFirestore,
+    private val auth: FirebaseAuth
+) : DatabaseProvider {
     private val currentUser
-        get() = FirebaseAuth.getInstance().currentUser
-
+        get() = auth.currentUser
+    private val result = MutableLiveData<List<Note>>()
     private var subscribeOnDb = false
 
     override fun observeNotes(): LiveData<List<Note>> {
@@ -68,7 +71,6 @@ class FireStoreDatabaseProvider : DatabaseProvider {
             {
                 Log.e(TAG, "Error subscribe, message: ${it.message}")
             })
-
     }
 
     private fun getUserNotesCollection() = currentUser?.let {

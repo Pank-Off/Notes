@@ -82,9 +82,8 @@ class NoteFragment : Fragment() {
                         parentFragmentManager.popBackStack()
                     }
                     .setNegativeButton(R.string.logout_dialog_cancel) { _, _ -> }
-                    .create().show()
-
-
+                    .create()
+                    .show()
             }
             titleEt.addTextChangedListener {
                 if (it.toString() != "") {

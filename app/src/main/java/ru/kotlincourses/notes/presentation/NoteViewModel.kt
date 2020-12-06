@@ -1,5 +1,6 @@
 package ru.kotlincourses.notes.presentation
 
+import androidx.annotation.VisibleForTesting
 import androidx.lifecycle.*
 import ru.kotlincourses.notes.data.NotesRepository
 import ru.kotlincourses.notes.model.Note
@@ -54,7 +55,8 @@ class NoteViewModel(private val notesRepository: NotesRepository, var note: Note
 
     fun showError(): LiveData<Event<Boolean>> = showErrorLiveData
 
-    override fun onCleared() {
+    @VisibleForTesting
+    public override fun onCleared() {
         super.onCleared()
         lifecycleRegistry.currentState = Lifecycle.State.DESTROYED
     }

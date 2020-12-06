@@ -9,7 +9,7 @@ import ru.kotlincourses.notes.data.noteId
 
 @Parcelize
 data class Note(
-    val id: Long = noteId,
+    var id: Long = noteId,
     val title: String = "",
     val note: String = "",
     val color: Color = Color.values().toList().shuffled().first(),
