@@ -1,20 +1,17 @@
 package ru.kotlincourses.notes.data.db
 
 import androidx.arch.core.executor.testing.InstantTaskExecutorRule
+import androidx.lifecycle.MutableLiveData
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.FirebaseUser
-import com.google.firebase.firestore.CollectionReference
-import com.google.firebase.firestore.DocumentSnapshot
-import com.google.firebase.firestore.FirebaseFirestore
+import com.google.firebase.firestore.*
 import io.mockk.clearMocks
 import io.mockk.every
 import io.mockk.mockk
-import junit.framework.TestCase
+import io.mockk.slot
 import org.junit.*
-import ru.kotlincourses.notes.data.errors.NoAuthException
 import ru.kotlincourses.notes.model.Note
 import ru.kotlincourses.notes.model.User
-import java.lang.Error
 
 class FireStoreDatabaseProviderTest {
     @get:Rule
@@ -29,7 +26,6 @@ class FireStoreDatabaseProviderTest {
     private val mockDocument3 = mockk<DocumentSnapshot>()
     private val testNotes = listOf(Note(id = 1), Note(id = 2), Note(id = 3))
     private val provider: FireStoreDatabaseProvider = FireStoreDatabaseProvider(mockDb, mockAuth)
-
 
     @Before
     fun setUp() {
@@ -50,6 +46,24 @@ class FireStoreDatabaseProviderTest {
         provider.observeNotes()
         val user: User? = provider.getCurrentUser()
         Assert.assertTrue(user == null)
+    }
+
+    @Test
+    fun `observe notes return notes`() {
+        val result = MutableLiveData<List<Note>>()
+        val slot = slot<EventListener<QuerySnapshot>>()
+        val mockSnapshot = mockk<QuerySnapshot>()
+
+        every { mockSnapshot.documents } returns
+                listOf(mockDocument1, mockDocument2, mockDocument3)
+        every { mockCollection.addSnapshotListener(capture(slot)) } returns mockk()
+
+        provider.observeNotes().observeForever {
+            result.value = it
+        }
+
+        slot.captured.onEvent(mockSnapshot, null)
+        Assert.assertEquals(testNotes, result.value)
     }
 
     @After
