@@ -1,12 +1,12 @@
 package ru.kotlincourses.notes.data
 
-import androidx.lifecycle.LiveData
+import kotlinx.coroutines.flow.Flow
 import ru.kotlincourses.notes.model.Note
 import ru.kotlincourses.notes.model.User
 
 interface NotesRepository {
-    fun getCurrentUser(): User?
-    fun observeNotes(): LiveData<List<Note>>
-    fun addOrReplaceNote(newNote: Note): LiveData<Result<Note>>
-    fun deleteNote(noteId: Long): LiveData<Result<Note?>>
+    suspend fun getCurrentUser(): User?
+    fun observeNotes(): Flow<List<Note>>
+    suspend fun addOrReplaceNote(newNote: Note)
+    suspend fun deleteNote(noteId: Long)
 }

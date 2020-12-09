@@ -16,7 +16,7 @@ android {
         versionCode 1
         versionName "1.0"
         multiDexEnabled true
-        testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
+        testInstrumentationRunner "ru.kotlincourses.notes.app.TestAppJUnitRunner"
     }
 
     buildFeatures {
@@ -45,7 +45,7 @@ dependencies {
     // LiveData
     implementation "androidx.lifecycle:lifecycle-livedata-ktx:$lifecycle_version"
 
-    def nav_version = '2.2.2'
+    def nav_version = '2.3.2'
     implementation "androidx.navigation:navigation-fragment-ktx:$nav_version"
 
     //Material
@@ -79,7 +79,17 @@ dependencies {
     implementation 'androidx.appcompat:appcompat:1.2.0'
     implementation 'com.google.android.material:material:1.2.1'
     implementation 'androidx.constraintlayout:constraintlayout:2.0.4'
+
+    // kotlin coroutines
+    implementation "org.jetbrains.kotlinx:kotlinx-coroutines-core:1.4.2"
     testImplementation 'junit:junit:4.13.1'
+    testImplementation 'android.arch.core:core-testing:1.1.1'
+    testImplementation 'io.mockk:mockk:1.10.3-jdk8'
+    testImplementation 'org.jetbrains.kotlinx:kotlinx-coroutines-test:1.4.2'
+
     androidTestImplementation 'androidx.test.ext:junit:1.1.2'
-    androidTestImplementation 'androidx.test.espresso:espresso-core:3.3.0'
+    androidTestImplementation 'androidx.test.espresso:espresso-core:3.2.0'
+    androidTestImplementation "io.mockk:mockk-android:1.10.0"
+
+    debugImplementation "androidx.fragment:fragment-testing:1.2.5"
 }

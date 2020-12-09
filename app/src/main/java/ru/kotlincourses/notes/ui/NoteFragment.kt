@@ -75,16 +75,15 @@ class NoteFragment : Fragment() {
 
             deleteBtn.setOnClickListener {
                 AlertDialog.Builder(ContextThemeWrapper(context, R.style.myDialog))
-                    .setTitle(R.string.logout_dialog_title)
-                    .setMessage(R.string.logout_dialog_message)
+                    .setTitle(R.string.confirm_the_deletion)
+                    .setMessage(R.string.sure_delete)
                     .setPositiveButton(R.string.ok_bth_title) { _, _ ->
                         viewModel.deleteNote()
                         parentFragmentManager.popBackStack()
                     }
                     .setNegativeButton(R.string.logout_dialog_cancel) { _, _ -> }
-                    .create().show()
-
-
+                    .create()
+                    .show()
             }
             titleEt.addTextChangedListener {
                 if (it.toString() != "") {
