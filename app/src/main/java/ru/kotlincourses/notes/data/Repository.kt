@@ -1,6 +1,8 @@
 package ru.kotlincourses.notes.data
 
-import androidx.lifecycle.LiveData
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.withContext
 import ru.kotlincourses.notes.data.db.DatabaseProvider
 import ru.kotlincourses.notes.model.Note
 import kotlin.random.Random
@@ -11,12 +13,14 @@ val noteId: Long
 
 class Repository(private val provider: DatabaseProvider) : NotesRepository {
 
-    override fun observeNotes(): LiveData<List<Note>> = provider.observeNotes()
+    override fun observeNotes(): Flow<List<Note>> = provider.observeNotes()
 
-    override fun addOrReplaceNote(newNote: Note): LiveData<Result<Note>> =
-        provider.addOrReplaceNote(newNote)
+    override suspend fun addOrReplaceNote(newNote: Note) =
+        withContext(Dispatchers.IO) { provider.addOrReplaceNote(newNote) }
 
-    override fun deleteNote(noteId: Long): LiveData<Result<Note?>> = provider.deleteNote(noteId)
+    override suspend fun deleteNote(noteId: Long) =
+        withContext(Dispatchers.IO) { provider.deleteNote(noteId) }
 
-    override fun getCurrentUser() = provider.getCurrentUser()
+    override suspend fun getCurrentUser() =
+        withContext(Dispatchers.IO) { provider.getCurrentUser() }
 }

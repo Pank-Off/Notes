@@ -1,19 +1,17 @@
 package ru.kotlincourses.notes.presentation
 
-import androidx.annotation.VisibleForTesting
-import androidx.lifecycle.*
+import androidx.lifecycle.LiveData
+import androidx.lifecycle.MutableLiveData
+import androidx.lifecycle.ViewModel
+import androidx.lifecycle.viewModelScope
+import kotlinx.coroutines.launch
 import ru.kotlincourses.notes.data.NotesRepository
 import ru.kotlincourses.notes.model.Note
 
-class NoteViewModel(private val notesRepository: NotesRepository, var note: Note?) : ViewModel(),
-    LifecycleOwner {
+class NoteViewModel(private val notesRepository: NotesRepository, var note: Note?) : ViewModel() {
     private val showErrorLiveData = MutableLiveData<Event<Boolean>>()
 
     private val deleteBtnLiveData = MutableLiveData<DeleteBtnVisibility>()
-    private val lifecycleOwner: LifecycleOwner = LifecycleOwner { lifecycleRegistry }
-    private val lifecycleRegistry = LifecycleRegistry(lifecycleOwner).also {
-        it.currentState = Lifecycle.State.RESUMED
-    }
 
     enum class DeleteBtnVisibility {
         VISIBLE, INVISIBLE
@@ -28,21 +26,23 @@ class NoteViewModel(private val notesRepository: NotesRepository, var note: Note
     }
 
     fun saveNote() {
-        note?.let { note ->
-            notesRepository.addOrReplaceNote(note).observe(lifecycleOwner) {
-                it.onFailure {
-                    showErrorLiveData.value = Event(true)
-                }
+        viewModelScope.launch {
+            val noteValue = note ?: return@launch
+            try {
+                notesRepository.addOrReplaceNote(noteValue)
+            } catch (exc: Exception) {
+                showErrorLiveData.value = Event(true)
             }
         }
     }
 
     fun deleteNote() {
-        note?.let { note ->
-            notesRepository.deleteNote(noteId = note.id).observe(lifecycleOwner) {
-                it.onFailure {
-                    showErrorLiveData.value = Event(true)
-                }
+        viewModelScope.launch {
+            val noteValue = note ?: return@launch
+            try {
+                notesRepository.deleteNote(noteValue.id)
+            } catch (exc: Exception) {
+                showErrorLiveData.value = Event(true)
             }
         }
     }
@@ -54,14 +54,4 @@ class NoteViewModel(private val notesRepository: NotesRepository, var note: Note
     fun observeDeleteBtnVisible(): LiveData<DeleteBtnVisibility> = deleteBtnLiveData
 
     fun showError(): LiveData<Event<Boolean>> = showErrorLiveData
-
-    @VisibleForTesting
-    public override fun onCleared() {
-        super.onCleared()
-        lifecycleRegistry.currentState = Lifecycle.State.DESTROYED
-    }
-
-    override fun getLifecycle(): Lifecycle {
-        return lifecycleRegistry
-    }
 }

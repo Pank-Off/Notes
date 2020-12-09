@@ -1,15 +1,19 @@
 package ru.kotlincourses.notes.data.db
 
 import android.util.Log
-import androidx.lifecycle.LiveData
-import androidx.lifecycle.MutableLiveData
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.CollectionReference
 import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.firestore.QueryDocumentSnapshot
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.filterNotNull
+import kotlinx.coroutines.suspendCancellableCoroutine
 import ru.kotlincourses.notes.data.errors.NoAuthException
 import ru.kotlincourses.notes.model.Note
 import ru.kotlincourses.notes.model.User
+import kotlin.coroutines.resumeWithException
+import kotlin.coroutines.suspendCoroutine
 
 const val TAG = "FireStoreDatabase"
 private const val NOTES_COLLECTION = "notes"
@@ -21,32 +25,32 @@ class FireStoreDatabaseProvider(
 ) : DatabaseProvider {
     private val currentUser
         get() = auth.currentUser
-    private val result = MutableLiveData<List<Note>>()
+    private val result = MutableStateFlow<List<Note>?>(null)
     private var subscribeOnDb = false
 
-    override fun observeNotes(): LiveData<List<Note>> {
+    override fun observeNotes(): Flow<List<Note>> {
         if (!subscribeOnDb) subscribeForDbChanging()
-        return result
+        return result.filterNotNull()
     }
 
-    override fun addOrReplaceNote(newNote: Note): LiveData<Result<Note>> {
-        val result = MutableLiveData<Result<Note>>()
-
-        handleNotesReference(
-            {
-                getUserNotesCollection().document(newNote.id.toString())
-                    .set(newNote).addOnSuccessListener {
-                        Log.d(TAG, "Note $newNote is saved")
-                        result.value = Result.success(newNote)
-                    }.addOnFailureListener {
-                        Log.e(TAG, "Error saving note $newNote, message: ${it.message}")
-                        result.value = Result.failure(it)
-                    }
-
-            }, {
-                Log.e(TAG, "Error saving note $newNote, message: ${it.message}")
-            })
-        return result
+    override suspend fun addOrReplaceNote(newNote: Note) {
+        suspendCoroutine<Note> { continuation ->
+            handleNotesReference(
+                {
+                    getUserNotesCollection().document(newNote.id.toString())
+                        .set(newNote)
+                        .addOnSuccessListener {
+                            Log.d(TAG, "Note $newNote is saved")
+                            continuation.resumeWith(Result.success(newNote))
+                        }.addOnFailureListener {
+                            Log.e(TAG, "Error saving note $newNote, message: ${it.message}")
+                            continuation.resumeWithException(it)
+                        }
+                }, {
+                    Log.e(TAG, "Error saving note $newNote, message: ${it.message}")
+                    continuation.resumeWithException(it)
+                })
+        }
     }
 
     private fun subscribeForDbChanging() {
@@ -78,19 +82,22 @@ class FireStoreDatabaseProvider(
     } ?: throw NoAuthException()
 
     override fun getCurrentUser() = currentUser?.run { User(displayName, email) }
-    override fun deleteNote(noteId: Long): LiveData<Result<Note?>> {
-        val result = MutableLiveData<Result<Note?>>()
-        handleNotesReference({
-            getUserNotesCollection().document(noteId.toString()).delete()
-                .addOnSuccessListener {
-                    Log.d(TAG, "Note is deleted")
-                    result.value = Result.success(null)
-                }.addOnFailureListener {
-                    Log.e(TAG, "Error delete note, message: ${it.message}")
-                    result.value = Result.failure(it)
-                }
-        })
-        return result
+
+    override suspend fun deleteNote(noteId: Long) {
+        suspendCancellableCoroutine<Note?> { continuation ->
+            handleNotesReference({
+                getUserNotesCollection().document(noteId.toString()).delete()
+                    .addOnSuccessListener {
+                        Log.d(TAG, "Note is deleted")
+                        continuation.resumeWith(Result.success(null))
+                    }.addOnFailureListener {
+                        Log.e(TAG, "Error delete note, message: ${it.message}")
+                        continuation.resumeWithException(it)
+                    }
+            })
+        }
+
+
     }
 
     private inline fun handleNotesReference(
