@@ -1,17 +1,20 @@
 package ru.kotlincourses.notes.data.db
 
 import androidx.arch.core.executor.testing.InstantTaskExecutorRule
-import androidx.lifecycle.MutableLiveData
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.FirebaseUser
-import com.google.firebase.firestore.*
+import com.google.firebase.firestore.CollectionReference
+import com.google.firebase.firestore.DocumentSnapshot
+import com.google.firebase.firestore.FirebaseFirestore
 import io.mockk.clearMocks
 import io.mockk.every
 import io.mockk.mockk
-import io.mockk.slot
-import org.junit.*
+import org.junit.After
+import org.junit.Before
+import org.junit.Rule
+import org.junit.Test
+import ru.kotlincourses.notes.data.errors.NoAuthException
 import ru.kotlincourses.notes.model.Note
-import ru.kotlincourses.notes.model.User
 
 class FireStoreDatabaseProviderTest {
     @get:Rule
@@ -39,31 +42,11 @@ class FireStoreDatabaseProviderTest {
         every { mockDocument3.toObject(Note::class.java) } returns testNotes[2]
     }
 
-    @Test
+    @Test(expected = NoAuthException::class)
     fun `should throw if no auth`() {
-        //как проверить что вылетел конкретный эксепшн?
         every { mockAuth.currentUser } returns null
         provider.observeNotes()
-        val user: User? = provider.getCurrentUser()
-        Assert.assertTrue(user == null)
-    }
-
-    @Test
-    fun `observe notes return notes`() {
-        val result = MutableLiveData<List<Note>>()
-        val slot = slot<EventListener<QuerySnapshot>>()
-        val mockSnapshot = mockk<QuerySnapshot>()
-
-        every { mockSnapshot.documents } returns
-                listOf(mockDocument1, mockDocument2, mockDocument3)
-        every { mockCollection.addSnapshotListener(capture(slot)) } returns mockk()
-
-        provider.observeNotes().observeForever {
-            result.value = it
-        }
-
-        slot.captured.onEvent(mockSnapshot, null)
-        Assert.assertEquals(testNotes, result.value)
+        provider.getCurrentUser() ?: throw NoAuthException()
     }
 
     @After
