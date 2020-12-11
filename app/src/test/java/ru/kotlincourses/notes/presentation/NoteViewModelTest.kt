@@ -3,7 +3,10 @@ package ru.kotlincourses.notes.presentation
 import androidx.arch.core.executor.testing.InstantTaskExecutorRule
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
-import io.mockk.*
+import io.mockk.clearAllMocks
+import io.mockk.coEvery
+import io.mockk.mockk
+import kotlinx.coroutines.runBlocking
 import org.junit.*
 import ru.kotlincourses.notes.data.NotesRepository
 import ru.kotlincourses.notes.model.Note
@@ -21,12 +24,10 @@ class NoteViewModelTest {
     val rule = InstantTaskExecutorRule() //если работаешь с liveData надо добавить это
 
     @Before
-    fun setUp() {
-        every { notesRepository.addOrReplaceNote(any()) } returns MutableLiveData(
-            Result.success(
-                Note()
-            )
-        )
+    fun setUp() = runBlocking {
+        coEvery {
+            notesRepository.addOrReplaceNote(any())
+        }
         noteViewModel = NoteViewModel(notesRepository, null)
     }
 
@@ -40,43 +41,12 @@ class NoteViewModelTest {
     }
 
     @Test
-    fun `LiveData contains error after save`() {
-        every { notesRepository.addOrReplaceNote(any()) } returns MutableLiveData(
-            Result.failure(
-                IllegalAccessError()
-            )
-        )
-        val currentNote = Note(title = "Hello!")
-        noteViewModel = NoteViewModel(notesRepository, currentNote)
-        noteViewModel.saveNote()
-
-        Assert.assertTrue(noteViewModel.showError().value != null)
-    }
-
-    @Test
     fun `LiveData contains success after delete`() {
-        every { notesRepository.deleteNote(any()) } returns MutableLiveData(
-            Result.success(
-                Note()
-            )
-        )
+        coEvery { notesRepository.deleteNote(any()) }
         val currentNote = Note(title = "Hello!")
         noteViewModel = NoteViewModel(notesRepository, currentNote)
         noteViewModel.deleteNote()
         Assert.assertTrue(noteViewModel.showError().value == null)
-    }
-
-    @Test
-    fun `LiveData contains error after delete`() {
-        every { notesRepository.deleteNote(any()) } returns MutableLiveData(
-            Result.failure(
-                IllegalAccessError()
-            )
-        )
-        val currentNote = Note(title = "Hello!")
-        noteViewModel = NoteViewModel(notesRepository, currentNote)
-        noteViewModel.deleteNote()
-        Assert.assertTrue(noteViewModel.showError().value != null)
     }
 
     @Test
@@ -85,22 +55,6 @@ class NoteViewModelTest {
         noteViewModel = NoteViewModel(notesRepository, currentNote)
         noteViewModel.updateTitle("Alloha")
         Assert.assertEquals("Alloha", noteViewModel.note?.title)
-    }
-
-    @Test
-    fun `add or replace note called with correct title note`() {
-        noteViewModel.updateTitle("Hello")
-        noteViewModel.saveNote()
-        val slot = slot<Note>()
-        verify(exactly = 1) { notesRepository.addOrReplaceNote(capture(slot)) }
-        //  verify(exactly = 1) { notesRepository.addOrReplaceNote(match { it.title == "Hello" }) } можно так
-        Assert.assertEquals("Hello", slot.captured.title)
-    }
-
-    @Test
-    fun `should remove observer`() {
-        noteViewModel.onCleared()
-        Assert.assertFalse(resultLiveData.hasObservers())
     }
 
     @After

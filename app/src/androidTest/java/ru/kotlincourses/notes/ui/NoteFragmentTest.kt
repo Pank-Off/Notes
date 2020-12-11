@@ -1,3 +1,5 @@
+package ru.kotlincourses.notes.ui
+
 import android.view.View
 import android.widget.Button
 import androidx.fragment.app.testing.launchFragmentInContainer
@@ -22,7 +24,6 @@ import org.koin.dsl.module
 import ru.kotlincourses.notes.R
 import ru.kotlincourses.notes.model.Note
 import ru.kotlincourses.notes.presentation.NoteViewModel
-import ru.kotlincourses.notes.ui.NoteFragment
 
 
 @RunWith(AndroidJUnit4::class)
@@ -50,9 +51,7 @@ class NoteFragmentTest {
     @Test
     fun save_note_on_button_click() {
         launchFragmentInContainer<NoteFragment>(themeResId = R.style.Theme_AppCompat)
-
         onView(withId(R.id.saveBtn)).perform(click())
-
         verify { mockViewModel.saveNote() }
     }
 
@@ -67,22 +66,19 @@ class NoteFragmentTest {
         verify { mockViewModel.deleteNote() }
     }
 
-    companion object {
-        private fun setBtnViewVisibility(visibility: Boolean): ViewAction? {
-            return object : ViewAction {
-                override fun getConstraints(): org.hamcrest.Matcher<View>? {
-                    return isAssignableFrom(Button::class.java)
-                }
+    private fun setBtnViewVisibility(visibility: Boolean): ViewAction? {
+        return object : ViewAction {
+            override fun getConstraints(): org.hamcrest.Matcher<View>? {
+                return isAssignableFrom(Button::class.java)
+            }
 
-                override fun perform(uiController: UiController?, view: View) {
-                    view.visibility = if (visibility) View.VISIBLE else View.GONE
-                }
+            override fun perform(uiController: UiController?, view: View) {
+                view.visibility = if (visibility) View.VISIBLE else View.GONE
+            }
 
-                override fun getDescription(): String {
-                    return "Show / Hide View"
-                }
+            override fun getDescription(): String {
+                return "Show / Hide View"
             }
         }
     }
-
 }
